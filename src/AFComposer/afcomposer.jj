@@ -1,0 +1,44 @@
+PARSER_BEGIN(AfComposer)
+package AFComposer;
+
+
+public class AfComposer {
+    public int parse(String log) {
+
+        try {
+            return S();
+        } catch (Throwable e) {
+            // Catching Throwable is ugly but JavaCC throws Error objects!
+            System.out.println("Syntax check failed: " + e.getMessage());
+            return 0;
+        }
+
+    }
+}
+
+PARSER_END(AfComposer)
+
+SKIP:  { " " | "\t" | "\n" | "\r"                    }
+TOKEN: { "(" | ")" | "+" | "*" | <NUM: (["0"-"9"])+> }
+
+int S(): {int sum;}
+{
+  sum=E() <EOF> {return sum;}
+}
+
+int E(): {int sum, x;}
+{
+  sum=T() ("+" x=T() {sum += x;} )* {return sum;}
+}
+
+int T(): {int sum, x;}
+{
+  sum=F() ("*" x=F() {sum *= x;} )* {return sum;}
+}
+
+int F(): {int x; Token n;}
+{
+  n=<NUM> {return Integer.parseInt(n.image);}
+|
+  "(" x=E() ")" {return x;}
+}
