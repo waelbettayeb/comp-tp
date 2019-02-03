@@ -1,9 +1,10 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
+import AFComposer.*;
 public class Main {
 
     public static void main(String[] args) {
@@ -11,10 +12,8 @@ public class Main {
         if (0 < args.length) {
             inFile = new File(args[0]);
             try {
-                String content = readFile(args[0], Charset.defaultCharset());
-                System.out.println(content);
-
-
+                AfComposer afc = new AfComposer(new FileInputStream(args[0]));
+                System.out.println(afc.parse());
             } catch (IOException e) {
                 e.printStackTrace();
             }

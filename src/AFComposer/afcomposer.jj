@@ -3,14 +3,14 @@ package AFComposer;
 
 
 public class AfComposer {
-    public int parse(String log) {
+    public State parse() {
 
         try {
             return S();
         } catch (Throwable e) {
             // Catching Throwable is ugly but JavaCC throws Error objects!
             System.out.println("Syntax check failed: " + e.getMessage());
-            return 0;
+            return new State();
         }
 
     }
@@ -18,27 +18,53 @@ public class AfComposer {
 
 PARSER_END(AfComposer)
 
-SKIP:  { " " | "\t" | "\n" | "\r"                    }
-TOKEN: { "(" | ")" | "+" | "*" | <NUM: (["0"-"9"])+> }
+SKIP:  { " " | "\t" | "\n" | "\r" | <"//" (~["\n","\r"])* ("\n"|"\r")> }
+TOKEN: {
+    
+      "{"
+    | "}"
+    | "("
+    | ")"
+    | ";"
+    | "~"
+    | "+"
+    | "ACTIONS"
+    | <EVENT: "click" | "dbclick" | "chrkeypress" | "enterkeypress" | "numkeypress" | "drag" | "drop">
+    | <LETTER: (["a"-"z"] | ["A"-"Z"])>
+    | <DIGIT: (["0"-"9"])+> 
+    | <ID: <LETTER> (<LETTER>|<DIGIT>|"_")* >
+    | <ALPHA: (["a"-"z"] | ["A"-"Z"])+ >
+    | <ALPHANUM: (["a"-"z"] | ["A"-"Z"] | ["0"-"9"])+ >
+    | <NUM: (["0"-"9"])+> 
+    }
 
-int S(): {int sum;}
+State S(): {State state = null;}
 {
-  sum=E() <EOF> {return sum;}
+  "ACTIONS" ACTIONS()<EOF> {return state;}
 }
 
-int E(): {int sum, x;}
+
+State ACTIONS(): {State state = null, x;}
 {
-  sum=T() ("+" x=T() {sum += x;} )* {return sum;}
+  (("{" ACTIONS() "}" _ACTIONS())
+  |(ACTION()_ACTIONS())
+  )
+
+  {return state;}
+}
+// this methode is added to remove the left recursivity 
+State _ACTIONS(): {State state = null, x;}
+{
+  ((";" ACTIONS() _ACTIONS())
+  |("~" ACTIONS() _ACTIONS())
+  |("+" ACTIONS() _ACTIONS())
+  |{}
+  )
+
+  {return state;}
 }
 
-int T(): {int sum, x;}
+State ACTION(): {State state = null, x;}
 {
-  sum=F() ("*" x=F() {sum *= x;} )* {return sum;}
-}
-
-int F(): {int x; Token n;}
-{
-  n=<NUM> {return Integer.parseInt(n.image);}
-|
-  "(" x=E() ")" {return x;}
+  <EVENT>"(" <ID> ")"{return state;}
 }

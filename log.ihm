@@ -1,1 +1,29 @@
-3+5*15
+ACTIONS
+{
+    click(Plan)
+    ;
+    drag(Plan)
+};
+{
+    {
+        dbclick(Plan);
+        {
+            click(BtProjection) ~
+            {
+                click(Commande);
+                click(Projection)
+            }
+        }
+    }   +
+    {
+        dbclick(Plan);
+        dbclick(Plan);
+        {
+            click(BtDistance) ~
+            {
+                click(Commande);
+                click(Distance)
+            }
+        }
+    }
+}
