@@ -38,33 +38,37 @@ TOKEN: {
     | <NUM: (["0"-"9"])+> 
     }
 
-State S(): {State state = null;}
+State S(): {State state = new State();}
 {
-  "ACTIONS" ACTIONS()<EOF> {return state;}
+  "ACTIONS" ACTIONS(state, null)<EOF> {return state;}
 }
 
 
-State ACTIONS(): {State state = null, x;}
+State ACTIONS(State S1, State S2): {State E = null; State F = null;}
 {
-  (("{" ACTIONS() "}" _ACTIONS())
-  |(ACTION()_ACTIONS())
+  (("{" E = ACTIONS(S1, S2) "}" F = _ACTIONS(S1, E))
+  |(E = ACTION(S1, S2) F = _ACTIONS(S1, E))
   )
-
-  {return state;}
+  {return F;}
 }
 // this methode is added to remove the left recursivity 
-State _ACTIONS(): {State state = null, x;}
+State _ACTIONS(State S, State E): {State state = null; State F = null;}
 {
-  ((";" ACTIONS() _ACTIONS())
-  |("~" ACTIONS() _ACTIONS())
-  |("+" ACTIONS() _ACTIONS())
-  |{}
-  )
-
-  {return state;}
+   (";" state = ACTIONS(E, null) _ACTIONS(E, state)){return F;}
+  |("+" state = ACTIONS(S, null) _ACTIONS(S, state)){return F;}
+  |("~" state = ACTIONS(S, E) _ACTIONS(S, state)){return F;}
+  |{}{return E;}
 }
 
-State ACTION(): {State state = null, x;}
+State ACTION(State state, State F): {
+  Token event, id;
+  if(F == null) 
+    F = new State();
+}
 {
-  <EVENT>"(" <ID> ")"{return state;}
+  event=<EVENT>"(" id=<ID> ")"
+  {
+    state.addTransition(new Transition(EventsEnum.valueOf(event.image.toUpperCase()), F, id.image));
+    return F;
+  }
 }

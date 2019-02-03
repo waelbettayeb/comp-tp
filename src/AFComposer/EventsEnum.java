@@ -1,5 +1,5 @@
 package AFComposer;
 
-public enum Event {
+public enum EventsEnum {
     CLICK, DBCLICK, CHRKEYPRESS, ENTERKEYPRESS, NULKEYPRESS, DRAG, DROP
 }

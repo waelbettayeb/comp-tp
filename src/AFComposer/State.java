@@ -18,4 +18,9 @@ public class State {
     public void addTransition(Transition transition) {
         this.transitions.add(transition);
     }
+
+    @Override
+    public String toString() {
+        return "(S:" + this.id + "){"+ this.transitions +"}";
+    }
 }
