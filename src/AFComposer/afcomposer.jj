@@ -7,10 +7,10 @@ public class AfComposer {
 
         try {
             return S();
-        } catch (Throwable e) {
+        } catch (ParseException e) {
             // Catching Throwable is ugly but JavaCC throws Error objects!
             System.out.println("Syntax check failed: " + e.getMessage());
-            return new State();
+            return null;
         }
 
     }
@@ -40,7 +40,7 @@ TOKEN: {
 
 State S(): {State state = new State();}
 {
-  "ACTIONS" ACTIONS(state, null)<EOF> {return state;}
+  "ACTIONS" ACTIONS(state, new State())<EOF> {return state;}
 }
 
 
@@ -54,17 +54,13 @@ State ACTIONS(State S1, State S2): {State E = null; State F = null;}
 // this methode is added to remove the left recursivity 
 State _ACTIONS(State S, State E): {State state = null; State F = null;}
 {
-   (";" state = ACTIONS(E, null) _ACTIONS(E, state)){return F;}
-  |("+" state = ACTIONS(S, null) _ACTIONS(S, state)){return F;}
-  |("~" state = ACTIONS(S, E) _ACTIONS(S, state)){return F;}
+   (";" state = ACTIONS(E, new State()) F = _ACTIONS(E, state)){return F;}
+  |("+" state = ACTIONS(S, new State()) F =_ACTIONS(S, state)){return F;}
+  |("~" state = ACTIONS(S, E) F =_ACTIONS(S, state)){return F;}
   |{}{return E;}
 }
 
-State ACTION(State state, State F): {
-  Token event, id;
-  if(F == null) 
-    F = new State();
-}
+State ACTION(State state, State F): {Token event, id;}
 {
   event=<EVENT>"(" id=<ID> ")"
   {
