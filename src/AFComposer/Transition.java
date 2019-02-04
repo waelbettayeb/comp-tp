@@ -19,5 +19,12 @@ public class Transition {
         return composantId;
     }
 
+    public State getState() {
+        return state;
+    }
 
+    @Override
+    public String toString() {
+        return this.event + "(" + this .composantId +")";
+    }
 }

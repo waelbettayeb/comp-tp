@@ -13,7 +13,9 @@ public class Main {
             inFile = new File(args[0]);
             try {
                 AfComposer afc = new AfComposer(new FileInputStream(args[0]));
-                System.out.println(afc.parse());
+                State state = afc.parse();
+                System.out.println(state);
+                State.logPrintTransitionTable();
             } catch (IOException e) {
                 e.printStackTrace();
             }
